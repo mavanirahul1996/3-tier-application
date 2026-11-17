@@ -167,3 +167,16 @@ Check the API implementation for the exact request and response schema.
 ## What this project demonstrates
 
 Layered application architecture, REST API development, PostgreSQL integration, Docker image creation, Kubernetes manifests, configuration management and basic cloud deployment concepts.
+
+
+## GitHub Actions deployment workflow
+
+The CI workflow builds the API and UI Docker images on pushes and pull requests. It publishes images to Docker Hub only for pushes to `main`; pull requests build locally without requiring registry credentials.
+
+The EC2 deployment workflow is intentionally manual. Before running it, configure these GitHub Actions secrets:
+- `EC2_HOST`
+- `EC2_PRIVATE_KEY`
+- `DOCKERHUB_USERNAME`
+- `POSTGRES_PASSWORD`
+
+Then open **Actions → CD Pipeline → Run workflow** and set `deploy_to_ec2=true`. The workflow keeps PostgreSQL data in a named Docker volume and does not store a database password in the workflow file. Verify EC2 SSH access, firewall rules, and the API/UI ports before deploying.
