@@ -182,3 +182,27 @@ By working through this project, you can practise:
 ---
 
 This README describes the code and configuration currently present in the repository. Update the deployment section as the cloud/Kubernetes manifests and automation are added or verified.
+
+
+## Kubernetes deployment configuration
+
+The API Deployment reads its database connection string from a Kubernetes Secret named `basic3tier-db`. Create the Secret in the same namespace before applying the API manifest:
+
+```bash
+kubectl create secret generic basic3tier-db \
+  --from-literal=connection-string='Host=postgres-service;Port=5432;Database=basic3tier;Username=postgres;Password=REPLACE_WITH_YOUR_PASSWORD'
+```
+
+Replace the example password locally. Do not commit real credentials or a populated Secret manifest.
+
+Apply the manifests only after confirming the cluster context and namespace:
+
+```bash
+kubectl config current-context
+kubectl apply -f postgres-deployment.yaml
+kubectl apply -f api-deployment.yaml
+kubectl apply -f ui-deployment.yaml
+kubectl apply -f ui-ingress.yaml
+```
+
+The repository also contains an Azure AKS cluster configuration example in `cluster.yaml`; review the resource group, region and cluster name before using it. The API currently has permissive CORS configuration in its source code. Restrict allowed origins to the actual UI domain before any production use.
