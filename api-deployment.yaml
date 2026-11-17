@@ -19,7 +19,10 @@ spec:
         - containerPort: 80
         env:
         - name: ConnectionStrings__Basic3Tier
-          value: "Host=postgres-service;Port=5432;Database=basic3tier;Username=postgres;Password=admin123"
+          valueFrom:
+            secretKeyRef:
+              name: basic3tier-db
+              key: connection-string
 ---
 apiVersion: v1
 kind: Service
