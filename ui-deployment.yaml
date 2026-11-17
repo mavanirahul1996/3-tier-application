@@ -14,13 +14,9 @@ spec:
     spec:
       containers:
       - name: ui-container
-        image: <your-dockerhub-username>/basic3tier-ui:latest
+        image: rmavani/basic3tier-ui:latest
         ports:
         - containerPort: 80
-        # Optional environment variable if you're configuring the API URL dynamically
-        # env:
-        # - name: API_URL
-        #   value: "http://api-service"
 ---
 apiVersion: v1
 kind: Service
