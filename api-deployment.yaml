@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: api-container
-        image: <your-dockerhub-username>/basic3tier-api:latest
+        image: rmavani/basic3tier-api:latest
         ports:
         - containerPort: 80
         env:
