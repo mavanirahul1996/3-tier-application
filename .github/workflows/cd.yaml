@@ -43,14 +43,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Base64 keeps special characters in the password safe when passing it to the remote shell.
-          POSTGRES_PASSWORD_B64="$(printf '%s' "$POSTGRES_PASSWORD" | base64 -w0)"
+          # Send the password over SSH stdin, not as a command-line argument.
+          printf '%s' "$POSTGRES_PASSWORD" | ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new \
+            "ubuntu@$EC2_HOST" "umask 077 && cat > /tmp/my3tier-db-password"
 
           ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new \
             "ubuntu@$EC2_HOST" \
-            "POSTGRES_PASSWORD_B64='$POSTGRES_PASSWORD_B64' DOCKERHUB_USERNAME='$DOCKERHUB_USERNAME' EC2_HOST='$EC2_HOST' bash -s" <<'REMOTE'
+            "DOCKERHUB_USERNAME='$DOCKERHUB_USERNAME' EC2_HOST='$EC2_HOST' bash -s" <<'REMOTE'
           set -euo pipefail
-          POSTGRES_PASSWORD="$(printf '%s' "$POSTGRES_PASSWORD_B64" | base64 -d)"
+          trap 'rm -f /tmp/my3tier-db-password' EXIT
+          POSTGRES_PASSWORD="$(cat /tmp/my3tier-db-password)"
 
           sudo docker pull "$DOCKERHUB_USERNAME/basic3tier-api:latest"
           sudo docker pull "$DOCKERHUB_USERNAME/basic3tier-ui:latest"
